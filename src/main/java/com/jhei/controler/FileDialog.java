@@ -42,8 +42,6 @@ public class FileDialog implements Initializable {
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {	
-		txCaminho.setText("C:\\Users\\USER\\Desktop\\5º Periodo\\Java\\brasil\\brasil\\brasil.csv");
-		txCaminhoJson.setText("C:\\Users\\USER\\Desktop\\5º Periodo\\Java\\brasil\\brasil");
 		progressBar.setProgress(0);		
 	}
 	
