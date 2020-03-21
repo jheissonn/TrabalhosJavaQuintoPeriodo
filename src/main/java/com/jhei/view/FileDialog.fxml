@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.Label?>
+
+<BorderPane BorderPane.alignment="TOP_CENTER" fx:id="borderPrincipal" prefHeight="150.0" maxHeight="200"  xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jhei.controler.FileDialog">
+   <center>
+      <VBox >
+         <children>
+            <HBox prefHeight="20.0">
+               <children>
+                  <Label text="Selecione arquivo para conversão:" minWidth="250" prefWidth="250"></Label>
+                  <TextField fx:id="txCaminho" disable="true" prefHeight="25.0" prefWidth="379.0" />
+                  <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="18.0" text="..." onAction="#abreFileDialog" />                  
+               </children>
+            </HBox>
+            <HBox prefHeight="20.0">
+               <children>
+                   <Label text="Selecione caminho para salvar ArquivoJson:" minWidth="250" prefWidth="250"></Label>
+                  <TextField fx:id="txCaminhoJson" disable="true" prefHeight="25.0" prefWidth="379.0" />
+                  <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="18.0" text="..." onAction="#abreFolderDialog" />
+                  <Button mnemonicParsing="false" text="Processar arquivo" onAction="#processaArquivo" />
+               </children>
+            </HBox>
+            <HBox prefHeight="20.0">
+              <Label fx:id="lbProgress"></Label>
+            </HBox>
+            <HBox prefHeight="20.0">
+              <ProgressBar prefWidth="800" fx:id="progressBar"></ProgressBar> 
+            </HBox>
+         </children>
+      </VBox>
+   </center>
+	
+</BorderPane>
