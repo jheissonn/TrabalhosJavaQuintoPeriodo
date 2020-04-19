@@ -14,8 +14,6 @@ public class EscreverJson implements Runnable {
 
 	@Override
 	public void run() {
-
-		System.out.println("Iniciado escritura" + getData());
 		do {
 
 			String task = ContolQueue.getTaskEscrever();

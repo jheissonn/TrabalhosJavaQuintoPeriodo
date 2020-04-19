@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.Label?>
+
+<BorderPane maxHeight="500.0" minWidth="515" prefHeight="315.0" prefWidth="515.0" BorderPane.alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jhei.trabalhos.conversaoJson.TelaConversao">
+   <center>
+      <VBox prefHeight="224.0" prefWidth="763.0">
+         <children>
+            <HBox prefHeight="20.0">
+               <children>
+                  <Label minWidth="75" prefWidth="75" text="Arquivo CSV:" />
+                  <TextField fx:id="txCaminho" disable="true" prefHeight="25.0" prefWidth="400.0" />
+                  <Button mnemonicParsing="false" onAction="#abreFileDialog" prefHeight="25.0" prefWidth="18.0" text="...">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </Button>                  
+               </children>
+               <opaqueInsets>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </opaqueInsets>
+            </HBox>
+            <HBox prefHeight="20.0">
+               <children>
+                   <Label minWidth="75.0" prefHeight="17.0" prefWidth="75.0" text="Onde salvar?" />
+                  <TextField fx:id="txCaminhoJson" disable="true" prefHeight="25.0" prefWidth="400.0" />
+                  <Button mnemonicParsing="false" onAction="#abreFolderDialog" prefHeight="25.0" prefWidth="18.0" text="...">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </Button>                   
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_RIGHT" prefHeight="20.0">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#processaArquivo" text="Processar arquivo">
+                     <opaqueInsets>
+                        <Insets right="10.0" />
+                     </opaqueInsets>
+                     <HBox.margin>
+                        <Insets right="15.0" />
+                     </HBox.margin></Button>
+               </children>
+            </HBox>
+            <HBox prefHeight="20.0">
+               <children>
+                 <Label minWidth="125" prefHeight="17.0" prefWidth="125" text="Progresso Leitura:" />
+                 <ProgressBar fx:id="progressBarLeitura" prefWidth="380" />
+               </children> 
+            </HBox>
+            <HBox prefHeight="20.0">
+               <children>
+                 <Label minWidth="125" prefHeight="17.0" prefWidth="125" text="Progresso Conversão:" />
+                 <ProgressBar fx:id="progressBarConversao" prefWidth="380" />
+               </children> 
+            </HBox>
+            <HBox prefHeight="20.0">
+               <children>
+                 <Label minWidth="125" prefHeight="17.0" prefWidth="125" text="Progresso escrever:" />
+                 <ProgressBar fx:id="progressBarEscreve" prefWidth="380" />
+               </children> 
+            </HBox>
+            <HBox>
+              <VBox>
+                <children>
+                   <TextArea fx:id="txLogLeitura" prefHeight="170.0" prefWidth="165.0">
+                      <HBox.margin>
+                         <Insets left="5.0" />
+                      </HBox.margin></TextArea>
+                </children>
+              </VBox>
+              <VBox>
+                <children>
+                   <TextArea fx:id="txLogConversao" prefHeight="170.0" prefWidth="165.0">
+                      <HBox.margin>
+                         <Insets left="5.0" />
+                      </HBox.margin></TextArea>
+                </children>
+              </VBox>
+              <VBox>
+                <children>
+                   <TextArea fx:id="txLogEscrita" prefHeight="170.0" prefWidth="165.0">
+                      <HBox.margin>
+                         <Insets left="5.0" />
+                      </HBox.margin></TextArea>
+                </children>
+              </VBox>
+            </HBox>
+         </children>
+      </VBox>
+   </center>
+	
+</BorderPane>
