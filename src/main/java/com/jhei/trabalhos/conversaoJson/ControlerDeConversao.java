@@ -4,26 +4,25 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.csv.CSVRecord;
 
-public class ControlerDeConversao implements InterfaceCsv, InterfaceConvertJson,InterfaceWriterFile {
+public class ControlerDeConversao implements InterfaceCsv, InterfaceConvertJson,InterfaceWriterFile, Serializable {
+	private static final long serialVersionUID = 1L;
 	
+	private ViewProcesso viewProcesso;
 	private List<CSVRecord> filaCsv;
 	private List<String> filaJson;
-	private boolean continuaLituraCsv = true;
-	private int qtdeRegistros;
-	private int resgistrosLidos = 0;
-	private int qdeRegistrosConvertidos = 0;
-	private int qdeRegistrosEscritos = 0;
 	private File arquivoCsv;
 	private File arquivoJson;
 
 
 	public ControlerDeConversao(File csv, File json) {
-		qtdeRegistros = iniciarQdteTotal(csv);
+		viewProcesso = new ViewProcesso();
+		viewProcesso.setQtdeRegistros(iniciarQdteTotal(csv));
 		filaCsv = new Vector<>();
 		filaJson = new Vector<>();
 		this.arquivoCsv = csv;
@@ -41,12 +40,12 @@ public class ControlerDeConversao implements InterfaceCsv, InterfaceConvertJson,
 	@Override
 	public synchronized void addRegistro(CSVRecord gravarCsv) {
 		filaCsv.add(gravarCsv);	
-		resgistrosLidos++;
+		viewProcesso.addResgistrosLidos();
 	}
 	
 	@Override
 	public synchronized void setContinuaLeituraCsv(boolean terminou) {
-		continuaLituraCsv = terminou;
+		viewProcesso.setContinuaLituraCsv(terminou);
 	}
 
 	
@@ -61,12 +60,12 @@ public class ControlerDeConversao implements InterfaceCsv, InterfaceConvertJson,
 
 	@Override
 	public synchronized boolean isTerminatedEscrever() {		
-		return qdeRegistrosEscritos != qtdeRegistros;
+		return viewProcesso.isTerminatedEscrever();
 	}
 
 	@Override
 	public synchronized void addEscrito() {
-		qdeRegistrosEscritos++;		
+		viewProcesso.addQdeRegistrosEscritos();
 	}	
 	
 	/* implementações InterfaceConvertJson */
@@ -74,12 +73,12 @@ public class ControlerDeConversao implements InterfaceCsv, InterfaceConvertJson,
 	@Override
 	public synchronized void addJson(String json) {
 		filaJson.add(json);
-		qdeRegistrosConvertidos++;
+		viewProcesso.addQdeRegistrosConvertidos();
 	}
 	
 	@Override
 	public synchronized boolean emOperacao() {
-		return !filaCsv.isEmpty() || continuaLituraCsv;
+		return !filaCsv.isEmpty() || viewProcesso.isContinuaLeituraCsv();
 	}
 	
 	@Override
@@ -91,30 +90,30 @@ public class ControlerDeConversao implements InterfaceCsv, InterfaceConvertJson,
 	
 	@Override
 	public synchronized boolean isTerminatedConvert() {
-		return qdeRegistrosConvertidos != qtdeRegistros;
+		return viewProcesso.isTerminatedConvert();
 	}
 	
 	
 	/* métodos para controle fora da classe */
 	
 	public synchronized int getQtdeRegistros() {
-		return qtdeRegistros;
+		return viewProcesso.getQtdeRegistros();
 	}
 	
 	public synchronized int getQdreRegistrosLidos() {
-		return resgistrosLidos;
+		return viewProcesso.getResgistrosLidos();
 	}
 	
 	public synchronized int getQdreRegistrosConvertidos() {
-		return qdeRegistrosConvertidos;
+		return viewProcesso.getQdeRegistrosConvertidos();
 	}
 	
 	public synchronized boolean isContinuaLeituraCsv() {
-		return continuaLituraCsv;
+		return viewProcesso.isContinuaLeituraCsv();
 	}
 
 	public synchronized int getQtdeEscritos() {
-		return qdeRegistrosEscritos;
+		return viewProcesso.getQdeRegistrosEscritos();
 	}
 	
 	public synchronized int iniciarQdteTotal(File file) {
@@ -125,5 +124,9 @@ public class ControlerDeConversao implements InterfaceCsv, InterfaceConvertJson,
 			e.printStackTrace();
 		}
 		return 0;
+	}
+	
+	public ViewProcesso getViewProcesso() {
+		return this.viewProcesso;
 	}
 }
