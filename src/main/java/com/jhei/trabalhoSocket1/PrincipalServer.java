@@ -16,14 +16,17 @@ public class PrincipalServer {
 	public static void main(String[] args) throws IOException {
 		ServerSocket server;
 		Socket client = null;
-		try{
-		    server = new ServerSocket( 12345 );
-		    client = server.accept();
-		    ObjectInputStream ois = null;
-		    new Atende(client).start();
-		    }catch( Exception e ){
-		    	System.out.println(e);
-		    }
+		try {
+			server = new ServerSocket(12345);
+			do {
+			
+			client = server.accept();
+			new Atende(client).start();
+			}
+			while(true);
+		} catch (Exception e) {
+			System.out.println(e);
+		}
 	}
 }
 
@@ -47,26 +50,31 @@ class Atende extends Thread {
 			oos = new ObjectOutputStream(cliente.getOutputStream());
 
 			pathPrincipal = (PathProcesso) ois.readObject();
+			ViewProcesso atual1 = null;
 			System.out.println(pathPrincipal.getStatus());
 			if (pathPrincipal.getStatus().equals("Iniciado")) {
 				controlConversao = new ControlerDeConversao(new File(pathPrincipal.getPathCsv()),
 						new File(pathPrincipal.getPathJson()));
 				controlConversao.iniciarProcesso();
-				oos.writeObject(controlConversao.getViewProcesso());
+			    atual1 =  controlConversao.getViewProcesso();
+
+				oos.writeObject(atual1);
+				oos.reset();
 			}
 			do {
 				 if (controlConversao.getViewProcesso().isTerminatedEscrever()) {
-					 oos.flush();
-					 ViewProcesso atual =  controlConversao.getViewProcesso();
-				    System.out.println(atual.getResgistrosLidos() + ": Lidos if:");
-					oos.writeObject(atual);
 					
-				} else {
-					oos.flush();
 					ViewProcesso atual =  controlConversao.getViewProcesso();
-					System.out.println(atual.getResgistrosLidos() + ": Lidos:");
 					oos.writeObject(atual);
-					cliente.close();
+					oos.reset();
+				} else {
+					if (!cliente.isClosed()) {
+						ViewProcesso atual = controlConversao.getViewProcesso();
+						oos.writeObject(atual);
+						oos.reset();
+					}
+					else {
+					}
 				}
 			} while (cliente.isConnected());
 

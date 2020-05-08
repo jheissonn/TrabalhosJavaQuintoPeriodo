@@ -8,9 +8,11 @@ import com.jhei.utils.JsonBrazil;
 public class ConverterJson implements Runnable{
 
 	private InterfaceConvertJson interfaceControler;
+	private Gson conversor;
 	
 	public ConverterJson(InterfaceConvertJson inJson) {
 		this.interfaceControler = inJson;
+		conversor = new Gson();
 	}	
 	 
 	@Override
@@ -20,7 +22,7 @@ public class ConverterJson implements Runnable{
 			JsonBrazil newObj = new JsonBrazil();
 			if (csvRecord != null) {
 				setCamposJson(csvRecord, newObj);
-				interfaceControler.addJson(new Gson().toJson(newObj));
+				interfaceControler.addJson(conversor.toJson(newObj));
 			}
 		}while(interfaceControler.isTerminatedConvert());
 	}

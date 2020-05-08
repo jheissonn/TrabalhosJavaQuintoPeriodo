@@ -2,6 +2,7 @@ package com.jhei.trabalhos.conversaoJson;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -13,6 +14,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.swing.JFileChooser;
+
+import org.apache.commons.collections4.SetUtils.SetView;
 
 import com.jhei.trabalhoSocket1.PathProcesso;
 
@@ -36,16 +39,21 @@ public class TelaConversao implements Initializable {
 	@FXML
 	private ProgressBar progressBarLeitura, progressBarConversao, progressBarEscreve;
 	@FXML
+	private ProgressBar progressBarAconverter, progressBarAescrever;
+	@FXML
 	private TextArea txLogLeitura, txLogConversao, txLogEscrita;
 	private ControlerDeConversao controlConversao;
 	
 	private ExecutorService pool; 
 	private ViewProcesso viewProcessoGlobal;
+	private Socket client;
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {	
 		progressBarLeitura.setProgress(0);		
 		progressBarConversao.setProgress(0);
 		progressBarEscreve.setProgress(0);
+		progressBarAconverter.setProgress(0);
+		progressBarAescrever.setProgress(0);
 		pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 	}
 	
@@ -80,8 +88,6 @@ public class TelaConversao implements Initializable {
 		File file = new File(txCaminho.getText());		
 		if(file.exists() && !txCaminhoJson.getText().equals("")) {
 			iniciarSocket();
-			//controlConversao = new ControlerDeConversao(file, new File(txCaminhoJson.getText() + "\\ArquivoConvertido.json"));
-			//iniciarProcesso();
 		}
 		else {
 			  Alert alert = new Alert(AlertType.INFORMATION);
@@ -101,22 +107,11 @@ public class TelaConversao implements Initializable {
 		pool.execute(getTaskConversao());
 		pool.execute(getTaskEscrita());
 	}
-	
-	private void iniciarProcesso() {
-		pool.execute(getTaskLeitura());
-		pool.execute(getTaskConversao());
-		pool.execute(getTaskEscrita());
-		controlConversao.iniciarProcesso();
-		
-	}
-	
 	private Task<Void> getTaskSocket(){
 		return new Task<Void>() {
 
 			@Override
 			protected Void call() throws Exception {
-				Socket cliente;
-				ObjectInputStream respostaServidor = null;
 				ObjectOutputStream EnviandoServidor = null;
 				ViewProcesso viewProcesso = null;
 				try {
@@ -124,24 +119,27 @@ public class TelaConversao implements Initializable {
 					pathProcesso.setPathCsv(txCaminho.getText());
 					pathProcesso.setPathJson(txCaminhoJson.getText() + "\\ArquivoConvertido.json");
 					pathProcesso.setStatus("Iniciado");
-					cliente = new Socket("127.0.0.1", 12345);
-					EnviandoServidor = new ObjectOutputStream(cliente.getOutputStream());
-					respostaServidor = new ObjectInputStream(cliente.getInputStream());
+					client = new Socket("127.0.0.1", 12345);
+					InputStream inputStream = client.getInputStream();
+					EnviandoServidor = new ObjectOutputStream(client.getOutputStream());
 					EnviandoServidor.writeObject(pathProcesso);
-					viewProcesso = (ViewProcesso) respostaServidor.readObject();
+					EnviandoServidor.flush();
+					ObjectInputStream objectOutputStream = new ObjectInputStream(inputStream);
+					viewProcesso = (ViewProcesso) objectOutputStream.readObject();
 					setViewProcesso(viewProcesso);
 					iniciarProcessoSocket();
 					pathProcesso = new PathProcesso();
 					pathProcesso.setStatus("Andamento");
-					EnviandoServidor.flush();
+					
 					EnviandoServidor.writeObject(pathProcesso);
 					EnviandoServidor.flush();
-					do {						
-						ViewProcesso viewProcessoS = (ViewProcesso) respostaServidor.readObject();
-						System.out.println(viewProcessoS.getQdeRegistrosEscritos() + ": Teste escritos.");
-						setViewProcesso(viewProcessoS);
+					do {	
+						viewProcesso = (ViewProcesso) objectOutputStream.readObject();
+						setViewProcesso(viewProcesso);
+						atualizaProgress(viewProcesso);
 					}
 					while(viewProcesso.isTerminatedEscrever());
+					
 					
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -153,6 +151,17 @@ public class TelaConversao implements Initializable {
 		};
 	} 
 	
+	private void atualizaProgress(ViewProcesso view) {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				progressBarAconverter.setProgress(view.getAConverter());
+				progressBarAescrever.setProgress(view.getAEscrever());
+			}
+		});
+		
+	}
+	
 	private Task<Void> getTaskLeitura() {
 		Task<Void> task = new Task<Void>() {
 			@Override
@@ -163,7 +172,7 @@ public class TelaConversao implements Initializable {
 				} while (getViewProcesso().isContinuaLeituraCsv());
 				updateProgress(getViewProcesso().getResgistrosLidos(), getViewProcesso().getQtdeRegistros());
 				updateMessage("Finalizado leitura de: " + getViewProcesso().getQtdeRegistros() + " registros: " + new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z").format(new Date(System.currentTimeMillis())));
-				
+				updateMessage("Ao chegar aqui ele finalizou a thread de leitura.");
 				return null;
 			}
 
@@ -217,7 +226,9 @@ public class TelaConversao implements Initializable {
 				} while (getViewProcesso().isTerminatedConvert());
 				updateProgress(getViewProcesso().getQdeRegistrosConvertidos(), getViewProcesso().getQtdeRegistros());
 				updateMessage("Finalizado conversão de: " + getViewProcesso().getQtdeRegistros() + " registros: " + new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z").format(new Date(System.currentTimeMillis())));
-				System.out.println("getTaskConversao");
+				
+				updateMessage("Ao chegar aqui ele finalizou a thread de conversão.");
+				
 				return null;
 			}
 
@@ -270,7 +281,7 @@ public class TelaConversao implements Initializable {
 				} while (getViewProcesso().isTerminatedEscrever());
 				updateProgress(getViewProcesso().getQdeRegistrosEscritos(), getViewProcesso().getQtdeRegistros());
 				updateMessage("Finalizado de escrever: " + getViewProcesso().getQtdeRegistros() + " registros: " + new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z").format(new Date(System.currentTimeMillis())));
-				System.out.println("getTaskescrita");
+				updateMessage("Ao chegar aqui ele finalizou a thread de escrita.");
 				return null;
 			}
 

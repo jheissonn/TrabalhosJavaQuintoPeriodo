@@ -7,6 +7,8 @@ import java.io.LineNumberReader;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.csv.CSVRecord;
 
@@ -18,21 +20,45 @@ public class ControlerDeConversao implements InterfaceCsv, InterfaceConvertJson,
 	private List<String> filaJson;
 	private File arquivoCsv;
 	private File arquivoJson;
-
+	private ExecutorService pool;
+	private Thread thLeitura;
+	private Thread thConversao;
+	private Thread thEscrita;
+	private boolean jaAdiconadoConvert = false;
+	private boolean jaAdiconadoEscrever = false;
+	
 
 	public ControlerDeConversao(File csv, File json) {
+		pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 		viewProcesso = new ViewProcesso();
 		viewProcesso.setQtdeRegistros(iniciarQdteTotal(csv));
 		filaCsv = new Vector<>();
 		filaJson = new Vector<>();
 		this.arquivoCsv = csv;
 		this.arquivoJson = json;
+		thLeitura = new Thread(new TrataCsv(this, arquivoCsv));
+		thConversao = new Thread(new ConverterJson(this));
+		thEscrita = new Thread(new EscreverJson(arquivoJson, this));
 	}
 	
 	public void iniciarProcesso() {
-		new Thread(new TrataCsv(this, arquivoCsv)).start();
-		new Thread(new ConverterJson(this)).start();
-		new Thread(new EscreverJson(arquivoJson, this)).start();
+		pool.execute(thLeitura);
+		pool.execute(thConversao);
+		pool.execute(thEscrita);
+	}
+	
+	private void addNewThreadConvert() {
+		if(!jaAdiconadoConvert) {
+			new Thread(new ConverterJson(this)).start();
+			jaAdiconadoConvert = true;
+		}
+	}
+	
+	private void addNewThreadEscrever() {
+		if(!jaAdiconadoEscrever) {
+			new Thread(new EscreverJson(arquivoJson, this)).start();
+			jaAdiconadoEscrever = true;
+		}
 	}
 	
 	
@@ -41,6 +67,9 @@ public class ControlerDeConversao implements InterfaceCsv, InterfaceConvertJson,
 	public synchronized void addRegistro(CSVRecord gravarCsv) {
 		filaCsv.add(gravarCsv);	
 		viewProcesso.addResgistrosLidos();
+		if (viewProcesso.getAConverter() > 99) {
+			addNewThreadConvert();
+		}
 	}
 	
 	@Override
@@ -53,8 +82,10 @@ public class ControlerDeConversao implements InterfaceCsv, InterfaceConvertJson,
 	
 	@Override
 	public synchronized String getObjToConvert() {
-		if(!filaJson.isEmpty())
+		if(!filaJson.isEmpty()) {
+			viewProcesso.removeAEscrever();
 			return filaJson.remove(0);
+		}
 		return null;
 	}
 
@@ -74,6 +105,9 @@ public class ControlerDeConversao implements InterfaceCsv, InterfaceConvertJson,
 	public synchronized void addJson(String json) {
 		filaJson.add(json);
 		viewProcesso.addQdeRegistrosConvertidos();
+		if(viewProcesso.getAEscrever() > 99) {
+			addNewThreadEscrever();
+		}
 	}
 	
 	@Override
@@ -83,8 +117,10 @@ public class ControlerDeConversao implements InterfaceCsv, InterfaceConvertJson,
 	
 	@Override
 	public synchronized CSVRecord getCsv() {
-		if(!filaCsv.isEmpty())
+		if(!filaCsv.isEmpty()) {
+			viewProcesso.removeAConverter();
 			return filaCsv.remove(0);
+		}
 		return null;
 	}
 	

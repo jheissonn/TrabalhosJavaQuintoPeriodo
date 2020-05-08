@@ -79,6 +79,18 @@
                  <ProgressBar fx:id="progressBarEscreve" prefWidth="380" />
                </children> 
             </HBox>
+            <HBox prefHeight="20.0">
+               <children>
+                 <Label minWidth="125" prefHeight="17.0" prefWidth="125" text="A converter:" />
+                 <ProgressBar fx:id="progressBarAconverter" prefWidth="380" />
+               </children> 
+            </HBox>
+            <HBox prefHeight="20.0">
+               <children>
+                 <Label minWidth="125" prefHeight="17.0" prefWidth="125" text="A escrever:" />
+                 <ProgressBar fx:id="progressBarAescrever" prefWidth="380" />
+               </children> 
+            </HBox>
             <HBox>
               <VBox>
                 <children>

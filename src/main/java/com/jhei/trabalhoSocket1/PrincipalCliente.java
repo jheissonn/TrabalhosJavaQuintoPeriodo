@@ -7,29 +7,26 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
+import com.jhei.trabalhos.conversaoJson.ViewProcesso;
+
 public class PrincipalCliente {
 	public static void main(String[] args) throws UnknownHostException, IOException {
 		Socket client = null;
 
-		ObjectOutputStream oos = null;
 		ObjectInputStream input = null;
-		SerializeiDocument serialDoc = new SerializeiDocument();
-		serialDoc.setDoc("Teste");
+		ViewProcesso serialDoc;
 		try{
 		    client = new Socket("127.0.0.1", 12345);
-		    oos = new ObjectOutputStream( client.getOutputStream() );
 		    input = new ObjectInputStream (client.getInputStream());
-		    //Supondo que serialDoc já esteja setado...
-		    oos.writeObject( serialDoc );
-		    oos.flush();
-		    serialDoc = (SerializeiDocument) input.readObject();
-		    System.out.println(serialDoc.getDoc());
+		    serialDoc = (ViewProcesso) input.readObject();
+		    System.out.println(serialDoc.getResgistrosLidos() + " : " + serialDoc.getQtdeRegistros());
+		    serialDoc = (ViewProcesso) input.readObject();
+		    System.out.println(serialDoc.getResgistrosLidos()+ " : " + serialDoc.getQtdeRegistros());
 		    
 		    }catch( Exception e ){
 		    	System.out.println(e);
 		    }
 		    finally{ 
-		        oos.close(); 
 		        client.close();
 		    }
 

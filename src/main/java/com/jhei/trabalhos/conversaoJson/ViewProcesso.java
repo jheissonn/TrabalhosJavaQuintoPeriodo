@@ -9,6 +9,8 @@ public class ViewProcesso implements Serializable {
 	private int qdeRegistrosConvertidos = 0;
 	private int qdeRegistrosEscritos = 0;
 	private boolean continuaLituraCsv = true;
+	private int aConverter = 0;
+	private int aEscrever = 0;
 
 	public synchronized boolean isTerminatedConvert() {
 		return qdeRegistrosConvertidos != qtdeRegistros;
@@ -35,6 +37,7 @@ public class ViewProcesso implements Serializable {
 	}
 
 	public void addResgistrosLidos() {
+		addAConverter();
 		this.resgistrosLidos++;
 	}
 
@@ -43,6 +46,7 @@ public class ViewProcesso implements Serializable {
 	}
 
 	public void addQdeRegistrosConvertidos() {
+		addAEscrever();
 		this.qdeRegistrosConvertidos++;
 	}
 
@@ -57,5 +61,36 @@ public class ViewProcesso implements Serializable {
 	public void setContinuaLituraCsv(boolean continuaLituraCsv) {
 		this.continuaLituraCsv = continuaLituraCsv;
 	}
+	
+	public int getAConverter() {
+		return aConverter;
+	}
+	
+	public void addAConverter() {
+		aConverter++;
+	}
+	public void removeAConverter() {
+		aConverter--;
+	}
+	
+	public int getAEscrever() {
+		return aEscrever;
+	}
+	
+	public void addAEscrever() {
+		aEscrever++;
+	}
+	public void removeAEscrever() {
+		aEscrever--;
+	}
+
+	@Override
+	public String toString() {
+		return "ViewProcesso [qtdeRegistros=" + qtdeRegistros + ", resgistrosLidos=" + resgistrosLidos
+				+ ", qdeRegistrosConvertidos=" + qdeRegistrosConvertidos + ", qdeRegistrosEscritos="
+				+ qdeRegistrosEscritos + ", continuaLituraCsv=" + continuaLituraCsv + ", aConverter=" + aConverter
+				+ ", aEscrever=" + aEscrever + "]";
+	}
+	
 	
 }
